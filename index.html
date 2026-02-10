@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine 💖</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', system-ui;
+    background: linear-gradient(135deg, #ffd6e8, #ffeef5);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* Effects Layer */
+  .effects {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Falling items */
+  .fall {
+    position: absolute;
+    top: -40px;
+    animation: fall linear forwards;
+    opacity: 0.95;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Sparkle burst */
+  .sparkle {
+    position: absolute;
+    animation: sparkle 1.4s ease-out forwards;
+    font-size: 18px;
+  }
+
+  @keyframes sparkle {
+    0% {
+      transform: scale(0) translate(0,0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.8) translate(var(--x), var(--y));
+      opacity: 0;
+    }
+  }
+
+  /* Card */
+  .card {
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 22px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    z-index: 1;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    margin: 15px 0;
+  }
+
+  button {
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 6px;
+    transition: all 0.3s ease;
+  }
+
+  .yes {
+    background: #ff4d88;
+    color: white;
+  }
+
+  .no {
+    background: #e6e6e6;
+  }
+
+  .footer {
+    font-size: 12px;
+    margin-top: 20px;
+    color: #888;
+  }
+
+  .credit {
+    font-size: 12px;
+    margin-top: 14px;
+    color: #777;
+  }
+
+  .credit a {
+    color: #ff4d88;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  canvas { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="effects" id="effects"></div>
+
+<div class="card" id="card">
+  <h1>Hey there 💖</h1>
+  <p>What’s your name?</p>
+  <input id="nameInput" placeholder="Type your name here…" />
+  <button class="yes" onclick="start()">Continue</button>
+  <div class="footer">Made with 💘 and zero escape routes</div>
+</div>
+
+<canvas id="certificate" width="800" height="600"></canvas>
+
+<script>
+  let name = "";
+  let index = 0;
+  let yesScale = 1;
+
+  const noMessages = [
+    "Are you sure? 🤨",
+    "Really sure?? 😳",
+    "But I bought your favorite snacks… 🍿",
+    "Wait, look at this puppy first 🐶",
+    "Okay, now you're just being mean 😒",
+    "I'm going to tell your mom 😤",
+    "Fine, I'll just ask the cat 🐱",
+    "Just kidding, you don't have a choice. Click Yes 😌"
+  ];
+
+  const fallingItems = ["💖","💘","❤️","🌸","🌹","💐","🍫","🧸","🎀"];
+  const sparkleItems = ["✨","⭐","🌟","💥","🎇"];
+
+  function start() {
+    name = document.getElementById("nameInput").value.trim();
+    if (!name) return alert("Tell me your name first 😌");
+
+    document.getElementById("card").innerHTML = `
+      <h1>Hey ${name} 💕</h1>
+      <p>Will you be my Valentine?</p>
+      <button class="yes" id="yesBtn" onclick="accept()">Yes ❤️</button>
+      <button class="no" id="noBtn" onclick="reject()">No 🙄</button>
+      <div class="footer">You can click No… but destiny disagrees 😇</div>
+    `;
+  }
+
+  function reject() {
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+
+    noBtn.innerText = noMessages[index];
+    index = (index + 1) % noMessages.length;
+
+    yesScale += 0.15;
+    yesBtn.style.transform = `scale(${yesScale})`;
+  }
+
+  function accept() {
+    multiSparkleExplosions();
+    fallingCelebration();
+
+    document.getElementById("card").innerHTML = `
+      <h1>YAYYYY 🎉</h1>
+      <p>${name}, this decision has been officially recorded in Valentine History 💘</p>
+      <button class="yes" onclick="downloadCert()">Download Valentine Certificate 💌</button>
+      <p style="margin-top:15px;">Screenshot this. This is legally binding now 😌</p>
+      <div class="credit">
+        Created with 💖 by 
+        <a href="https://x.com/raajtalluri" target="_blank">@raajtalluri</a>
+      </div>
+    `;
+  }
+
+  /* ✨ Multiple center sparkle explosions */
+  function multiSparkleExplosions() {
+    let count = 0;
+    const timer = setInterval(() => {
+      sparkleExplosion();
+      count++;
+      if (count === 3) clearInterval(timer);
+    }, 500);
+  }
+
+  function sparkleExplosion() {
+    const effects = document.getElementById("effects");
+
+    for (let i = 0; i < 70; i++) {
+      const s = document.createElement("div");
+      s.className = "sparkle";
+      s.innerText = sparkleItems[Math.floor(Math.random() * sparkleItems.length)];
+      s.style.left = "50vw";
+      s.style.top = "50vh";
+      s.style.setProperty("--x", (Math.random()*600-300)+"px");
+      s.style.setProperty("--y", (Math.random()*600-300)+"px");
+      effects.appendChild(s);
+
+      setTimeout(() => s.remove(), 1500);
+    }
+  }
+
+  /* 💖 Falling celebration */
+  function fallingCelebration() {
+    const effects = document.getElementById("effects");
+
+    const interval = setInterval(() => {
+      const item = document.createElement("div");
+      item.className = "fall";
+      item.innerText = fallingItems[Math.floor(Math.random()*fallingItems.length)];
+      item.style.left = Math.random()*100 + "vw";
+      item.style.fontSize = 18 + Math.random()*26 + "px";
+      item.style.animationDuration = 3 + Math.random()*3 + "s";
+      effects.appendChild(item);
+
+      setTimeout(() => item.remove(), 7000);
+    }, 120);
+
+    setTimeout(() => clearInterval(interval), 10000);
+  }
+
+  function downloadCert() {
+    const canvas = document.getElementById("certificate");
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#ffe6f0";
+    ctx.fillRect(0,0,800,600);
+
+    ctx.fillStyle = "#ff4d88";
+    ctx.font = "bold 40px Poppins";
+    ctx.textAlign = "center";
+    ctx.fillText("Valentine Certificate 💖", 400, 100);
+
+    ctx.fillStyle = "#333";
+    ctx.font = "24px Poppins";
+    ctx.fillText("This certifies that", 400, 220);
+
+    ctx.font = "bold 32px Poppins";
+    ctx.fillText(name, 400, 270);
+
+    ctx.font = "24px Poppins";
+    ctx.fillText("has officially agreed to be my Valentine 💘", 400, 330);
+
+    ctx.font = "18px Poppins";
+    ctx.fillText("Issued on: " + new Date().toDateString(), 400, 420);
+
+    const link = document.createElement("a");
+    link.download = "valentine-certificate.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+</script>
+
+</body>
+</html>
